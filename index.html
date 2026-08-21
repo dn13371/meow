@@ -224,25 +224,7 @@
   <!-- Popup No GIF -->
   <img id="no-gif-popup" src="no.gif" alt="No reaction">
 
-  <!-- Firebase Modular SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-    // Replace with your Firebase configuration object:
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-
+  <script>
     const yesBtn = document.getElementById('yes-btn');
     const noBtn = document.getElementById('no-btn');
     const step1 = document.getElementById('step-1');
@@ -304,7 +286,7 @@
       }, 1500);
     });
 
-    // Save to Firebase
+    // Send her response directly to Formspree
     document.getElementById('submit-btn').addEventListener('click', async () => {
       const time = document.getElementById('time-picker').value;
 
@@ -318,22 +300,38 @@
       submitBtn.innerText = "Sending... 💌";
 
       try {
-        await push(ref(database, 'date_responses'), {
-          agreedToDate: true,
-          time: time,
-          submittedAt: new Date().toISOString()
+        const response = await fetch('https://formspree.io/f/mgawqkna', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            agreedToDate: 'Yes! 🥰',
+            selectedTime: time
+          })
         });
 
-        for (let i = 0; i < 20; i++) { createHeart(); }
+        if (response.ok) {
+          for (let i = 0; i < 20; i++) { createHeart(); }
 
-        step2.style.display = 'none';
-        confirmation.style.display = 'block';
+          step2.style.display = 'none';
+          confirmation.style.display = 'block';
 
-        document.getElementById('summary-text').innerHTML = 
-          `Can't wait! Set for <b>${time}</b>!`;
+          // Format time to 12-hour display
+          const [hours, minutes] = time.split(':');
+          const dateObj = new Date();
+          dateObj.setHours(hours, minutes);
+          const formattedTime = dateObj.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+          document.getElementById('summary-text').innerHTML = 
+            `Can't wait! Set for <b>${formattedTime}</b>!`;
+        } else {
+          throw new Error('Formspree submission failed');
+        }
 
       } catch (error) {
-        console.error("Error saving data:", error);
+        console.error("Error submitting response:", error);
         alert("Something went wrong saving your response. Please try again!");
         submitBtn.disabled = false;
         submitBtn.innerText = "Lock It In! ✨";
