@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Date Night?</title>
   <style>
     :root {
@@ -14,90 +14,131 @@
       --border: #ffe0e3;
     }
 
+    * {
+      font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif !important;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
       color: var(--text);
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      min-height: -webkit-fill-available;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    html {
+      height: -webkit-fill-available;
     }
 
     .card {
       background: var(--card-bg);
-      padding: 30px;
-      border-radius: 20px;
+      padding: 28px 20px;
+      border-radius: 24px;
       box-shadow: 0 10px 30px rgba(255, 107, 129, 0.15);
-      max-width: 400px;
       width: 100%;
+      max-width: 340px;
       text-align: center;
+      position: relative;
     }
 
-    h1 { color: var(--primary); margin-bottom: 8px; }
-    p { color: #747d8c; font-size: 0.95rem; margin-bottom: 24px; }
-    .section { margin-bottom: 20px; text-align: left; }
-    label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
-
-    .options-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    .chip {
-      background: #f1f2f6;
-      border: 2px solid transparent;
-      padding: 10px;
-      border-radius: 12px;
-      cursor: pointer;
-      text-align: center;
-      font-size: 0.85rem;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-
-    .chip:hover { background: #ffe0e3; }
-    .chip.selected {
-      border-color: var(--primary);
-      background: #ffe6e8;
+    h1 {
       color: var(--primary);
-      font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.6rem;
+      line-height: 1.3;
     }
 
-    input[type="date"], input[type="time"] {
+    p {
+      color: #747d8c;
+      font-size: 1rem;
+      margin-bottom: 24px;
+      margin-top: 0;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      min-height: 60px;
+      position: relative;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 16px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 4px 12px rgba(255, 107, 129, 0.2);
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn-no {
+      background: #a4b0be;
+      box-shadow: 0 4px 12px rgba(164, 176, 190, 0.2);
+      transition: top 0.15s ease, left 0.15s ease;
+      z-index: 999;
+    }
+
+    #step-2, #confirmation {
+      display: none;
+    }
+
+    .section {
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    input[type="time"] {
       width: 100%;
-      padding: 10px;
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      box-sizing: border-box;
-      font-family: inherit;
+      padding: 14px;
+      border: 3px dashed var(--primary);
+      border-radius: 16px;
+      font-size: 1.2rem;
+      outline: none;
+      background: #fff0f2;
+      text-align: center;
+      color: var(--text);
+      -webkit-appearance: none;
     }
 
     .submit-btn {
       width: 100%;
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s ease;
       margin-top: 10px;
     }
 
-    .submit-btn:hover { background: var(--primary-hover); }
-    #confirmation { display: none; padding: 20px 0; }
-
     .floating-heart {
       position: fixed;
-      font-size: 24px;
+      font-size: 28px;
       animation: floatUp 2s linear forwards;
       pointer-events: none;
+      z-index: 1000;
     }
 
     @keyframes floatUp {
@@ -109,44 +150,38 @@
 <body>
 
   <div class="card">
-    <div id="form-container">
-      <h1>Let's Go On a Date? 💕</h1>
-      <p>Pick what you want to do and when!</p>
-
-      <div class="section">
-        <label>1. Select Activity</label>
-        <div class="options-grid" id="activity-grid">
-          <div class="chip" data-category="activity" data-value="Cozy Dinner">🍕 Cozy Dinner</div>
-          <div class="chip" data-category="activity" data-value="Coffee & Stroll">☕ Coffee & Stroll</div>
-          <div class="chip" data-category="activity" data-value="Movie Night">🎬 Movie Night</div>
-          <div class="chip" data-category="activity" data-value="Surprise Activity">🎨 Surprise Activity</div>
-        </div>
+    
+    <!-- Step 1: Yes or No -->
+    <div id="step-1">
+      <h1>Do you want to go on a date? 💕</h1>
+      <p>Choose wisely!</p>
+      
+      <div class="btn-group">
+        <button class="btn" id="yes-btn">Yes! 🥰</button>
+        <button class="btn btn-no" id="no-btn">No 😜</button>
       </div>
+    </div>
+
+    <!-- Step 2: Time Picker -->
+    <div id="step-2">
+      <h1>Yay! What time works? ⏰</h1>
+      <p>Pick a time for us!</p>
 
       <div class="section">
-        <label>2. Food Craving</label>
-        <div class="options-grid" id="food-grid">
-          <div class="chip" data-category="food" data-value="Ramen / Noodles">🍜 Ramen / Noodles</div>
-          <div class="chip" data-category="food" data-value="Tacos">🌮 Tacos</div>
-          <div class="chip" data-category="food" data-value="Sushi">🍣 Sushi</div>
-          <div class="chip" data-category="food" data-value="Dessert Only">🍰 Dessert Only</div>
-        </div>
-      </div>
-
-      <div class="section">
-        <label>3. When are you free?</label>
-        <input type="date" id="date-picker" style="margin-bottom: 8px;">
+        <label>Select Time:</label>
         <input type="time" id="time-picker">
       </div>
 
-      <button class="submit-btn" id="submit-btn">Lock It In! ✨</button>
+      <button class="btn submit-btn" id="submit-btn">Lock It In! ✨</button>
     </div>
 
+    <!-- Step 3: Confirmation -->
     <div id="confirmation">
-      <h1>It's a Date! 🥰</h1>
+      <h1>See you then! 🥰</h1>
       <p id="summary-text"></p>
-      <p style="font-size: 0.85rem; color: #a4b0be;">(I'll pick you up!)</p>
+      <p style="font-size: 0.9rem; color: #a4b0be;">(I'll pick you up!)</p>
     </div>
+
   </div>
 
   <!-- Firebase Modular SDK -->
@@ -154,7 +189,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Replace the object below with your actual Firebase project keys:
+    // Replace with your Firebase configuration object:
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -168,25 +203,47 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    const selections = { activity: '', food: '' };
+    const yesBtn = document.getElementById('yes-btn');
+    const noBtn = document.getElementById('no-btn');
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const confirmation = document.getElementById('confirmation');
 
-    document.querySelectorAll('.chip').forEach(chip => {
-      chip.addEventListener('click', (e) => {
-        const category = e.target.getAttribute('data-category');
-        const value = e.target.getAttribute('data-value');
-        
-        e.target.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-        e.target.classList.add('selected');
-        selections[category] = value;
-      });
+    // Function to jump the "No" button when clicked/tapped
+    function moveNoButton(e) {
+      e.preventDefault(); // Prevents actual click triggering
+      
+      const btnWidth = noBtn.offsetWidth;
+      const btnHeight = noBtn.offsetHeight;
+
+      // Ensure button stays well within the visible screen boundaries
+      const maxX = window.innerWidth - btnWidth - 20;
+      const maxY = window.innerHeight - btnHeight - 20;
+
+      const randomX = Math.max(20, Math.floor(Math.random() * maxX));
+      const randomY = Math.max(20, Math.floor(Math.random() * maxY));
+
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = `${randomX}px`;
+      noBtn.style.top = `${randomY}px`;
+    }
+
+    // Teleport on click or tap
+    noBtn.addEventListener('click', moveNoButton);
+    noBtn.addEventListener('touchstart', moveNoButton, { passive: false });
+
+    // "Yes" button opens time picker
+    yesBtn.addEventListener('click', () => {
+      step1.style.display = 'none';
+      step2.style.display = 'block';
     });
 
+    // Save to Firebase
     document.getElementById('submit-btn').addEventListener('click', async () => {
-      const date = document.getElementById('date-picker').value;
       const time = document.getElementById('time-picker').value;
 
-      if (!selections.activity || !selections.food || !date || !time) {
-        alert('Please fill out all the options! ❤️');
+      if (!time) {
+        alert('Please pick a time! ❤️');
         return;
       }
 
@@ -196,21 +253,18 @@
 
       try {
         await push(ref(database, 'date_responses'), {
-          activity: selections.activity,
-          food: selections.food,
-          date: date,
+          agreedToDate: true,
           time: time,
           submittedAt: new Date().toISOString()
         });
 
         for (let i = 0; i < 20; i++) { createHeart(); }
 
-        document.getElementById('form-container').style.display = 'none';
-        const confirmation = document.getElementById('confirmation');
+        step2.style.display = 'none';
         confirmation.style.display = 'block';
 
         document.getElementById('summary-text').innerHTML = 
-          `Can't wait for <b>${selections.activity}</b> and <b>${selections.food}</b> on <b>${date}</b> at <b>${time}</b>!`;
+          `Can't wait! Set for <b>${time}</b>!`;
 
       } catch (error) {
         console.error("Error saving data:", error);
