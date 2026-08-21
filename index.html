@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Date Night?</title>
+  
+  <!-- Load Comic Neue from Google Fonts for reliable rendering on mobile/iOS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --bg: #fff5f6;
@@ -14,8 +20,9 @@
       --border: #ffe0e3;
     }
 
-    * {
-      font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif !important;
+    /* Force Comic Sans / Comic Neue globally */
+    *, html, body, button, input, select, textarea {
+      font-family: 'Comic Neue', "Comic Sans MS", "Comic Sans", cursive, sans-serif !important;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       box-sizing: border-box;
@@ -56,6 +63,7 @@
       margin-bottom: 12px;
       font-size: 1.6rem;
       line-height: 1.3;
+      font-weight: 700;
     }
 
     p {
@@ -184,7 +192,7 @@
     
     <!-- Step 1: Yes or No -->
     <div id="step-1">
-      <h1>Do you want to go on a date? 💕</h1>
+      <h1>Do you want to facetime ur dumbass ex bf? 💕</h1>
       <p>Choose wisely!</p>
       
       <div class="gif-container" id="yes-gif-box">
@@ -198,8 +206,8 @@
 
     <!-- Step 2: Time Picker -->
     <div id="step-2">
-      <h1>Yay! What time works? ⏰</h1>
-      <p>Pick a time for us!</p>
+      <h1>Yay! Welche zeit willst du dir antun? :3 ⏰</h1>
+      <p>PICK A TIMEEEEE !</p>
 
       <div class="section">
         <label>Select Time:</label>
@@ -211,7 +219,7 @@
 
     <!-- Step 3: Confirmation -->
     <div id="confirmation">
-      <h1>See you then! 🥰</h1>
+      <h1>HEHEHEHE 🥰</h1>
       <p id="summary-text"></p>
       <p style="font-size: 0.9rem; color: #a4b0be;">(I'll pick you up!)</p>
     </div>
