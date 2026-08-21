@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Date Night?</title>
+  <style>
+    :root {
+      --bg: #fff5f6;
+      --card-bg: #ffffff;
+      --primary: #ff6b81;
+      --primary-hover: #ff4757;
+      --text: #2f3542;
+      --border: #ffe0e3;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(255, 107, 129, 0.15);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 { color: var(--primary); margin-bottom: 8px; }
+    p { color: #747d8c; font-size: 0.95rem; margin-bottom: 24px; }
+    .section { margin-bottom: 20px; text-align: left; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .chip {
+      background: #f1f2f6;
+      border: 2px solid transparent;
+      padding: 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .chip:hover { background: #ffe0e3; }
+    .chip.selected {
+      border-color: var(--primary);
+      background: #ffe6e8;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    input[type="date"], input[type="time"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover { background: var(--primary-hover); }
+    #confirmation { display: none; padding: 20px 0; }
+
+    .floating-heart {
+      position: fixed;
+      font-size: 24px;
+      animation: floatUp 2s linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div id="form-container">
+      <h1>Let's Go On a Date? 💕</h1>
+      <p>Pick what you want to do and when!</p>
+
+      <div class="section">
+        <label>1. Select Activity</label>
+        <div class="options-grid" id="activity-grid">
+          <div class="chip" data-category="activity" data-value="Cozy Dinner">🍕 Cozy Dinner</div>
+          <div class="chip" data-category="activity" data-value="Coffee & Stroll">☕ Coffee & Stroll</div>
+          <div class="chip" data-category="activity" data-value="Movie Night">🎬 Movie Night</div>
+          <div class="chip" data-category="activity" data-value="Surprise Activity">🎨 Surprise Activity</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <label>2. Food Craving</label>
+        <div class="options-grid" id="food-grid">
+          <div class="chip" data-category="food" data-value="Ramen / Noodles">🍜 Ramen / Noodles</div>
+          <div class="chip" data-category="food" data-value="Tacos">🌮 Tacos</div>
+          <div class="chip" data-category="food" data-value="Sushi">🍣 Sushi</div>
+          <div class="chip" data-category="food" data-value="Dessert Only">🍰 Dessert Only</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <label>3. When are you free?</label>
+        <input type="date" id="date-picker" style="margin-bottom: 8px;">
+        <input type="time" id="time-picker">
+      </div>
+
+      <button class="submit-btn" id="submit-btn">Lock It In! ✨</button>
+    </div>
+
+    <div id="confirmation">
+      <h1>It's a Date! 🥰</h1>
+      <p id="summary-text"></p>
+      <p style="font-size: 0.85rem; color: #a4b0be;">(I'll pick you up!)</p>
+    </div>
+  </div>
+
+  <!-- Firebase Modular SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // Replace the object below with your actual Firebase project keys:
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const selections = { activity: '', food: '' };
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        const category = e.target.getAttribute('data-category');
+        const value = e.target.getAttribute('data-value');
+        
+        e.target.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selections[category] = value;
+      });
+    });
+
+    document.getElementById('submit-btn').addEventListener('click', async () => {
+      const date = document.getElementById('date-picker').value;
+      const time = document.getElementById('time-picker').value;
+
+      if (!selections.activity || !selections.food || !date || !time) {
+        alert('Please fill out all the options! ❤️');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Sending... 💌";
+
+      try {
+        await push(ref(database, 'date_responses'), {
+          activity: selections.activity,
+          food: selections.food,
+          date: date,
+          time: time,
+          submittedAt: new Date().toISOString()
+        });
+
+        for (let i = 0; i < 20; i++) { createHeart(); }
+
+        document.getElementById('form-container').style.display = 'none';
+        const confirmation = document.getElementById('confirmation');
+        confirmation.style.display = 'block';
+
+        document.getElementById('summary-text').innerHTML = 
+          `Can't wait for <b>${selections.activity}</b> and <b>${selections.food}</b> on <b>${date}</b> at <b>${time}</b>!`;
+
+      } catch (error) {
+        console.error("Error saving data:", error);
+        alert("Something went wrong saving your response. Please try again!");
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Lock It In! ✨";
+      }
+    });
+
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.classList.add('floating-heart');
+      heart.innerText = ['💖', '💗', '✨', '🌸'][Math.floor(Math.random() * 4)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.top = '100vh';
+      heart.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 3000);
+    }
+  </script>
+</body>
+</html>
