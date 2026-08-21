@@ -65,6 +65,21 @@
       margin-top: 0;
     }
 
+    .gif-container {
+      width: 100%;
+      max-height: 180px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .gif-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     .btn-group {
       display: flex;
       justify-content: center;
@@ -99,8 +114,20 @@
       box-shadow: 0 4px 12px rgba(164, 176, 190, 0.2);
       position: fixed;
       z-index: 999;
-      /* Smooth movement transitions */
       transition: left 0.4s ease-in-out, top 0.4s ease-in-out;
+    }
+
+    /* Floating No GIF when tapped */
+    #no-gif-popup {
+      position: fixed;
+      width: 120px;
+      height: 120px;
+      border-radius: 16px;
+      pointer-events: none;
+      z-index: 10000;
+      display: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      border: 3px solid white;
     }
 
     #step-2, #confirmation {
@@ -160,6 +187,10 @@
       <h1>Do you want to go on a date? 💕</h1>
       <p>Choose wisely!</p>
       
+      <div class="gif-container" id="yes-gif-box">
+        <img src="yes.gif" alt="Yes reaction">
+      </div>
+
       <div class="btn-group">
         <button class="btn" id="yes-btn">Yes! 🥰</button>
       </div>
@@ -187,8 +218,11 @@
 
   </div>
 
-  <!-- Moving "No" button placed outside the card container -->
+  <!-- Moving "No" button -->
   <button class="btn btn-no" id="no-btn">No 😜</button>
+
+  <!-- Popup No GIF -->
+  <img id="no-gif-popup" src="no.gif" alt="No reaction">
 
   <!-- Firebase Modular SDK -->
   <script type="module">
@@ -214,8 +248,10 @@
     const step1 = document.getElementById('step-1');
     const step2 = document.getElementById('step-2');
     const confirmation = document.getElementById('confirmation');
+    const yesGifBox = document.getElementById('yes-gif-box');
+    const noGifPopup = document.getElementById('no-gif-popup');
 
-    // Function to calculate a random position inside the screen
+    // Calculate random position for "No" button
     function moveNoButton() {
       const btnWidth = noBtn.offsetWidth || 100;
       const btnHeight = noBtn.offsetHeight || 50;
@@ -230,24 +266,42 @@
       noBtn.style.top = `${randomY}px`;
     }
 
-    // Set initial position & start the continuous movement loop (every 450ms)
+    // Start continuous moving loop
     moveNoButton();
     const moveInterval = setInterval(moveNoButton, 450);
 
-    // Emergency teleport if clicked or tapped
-    function dodge(e) {
+    // Play no.gif popup if she manages to click/tap No
+    function handleNoClick(e) {
       e.preventDefault();
+
+      const rect = noBtn.getBoundingClientRect();
+      noGifPopup.style.left = `${rect.left}px`;
+      noGifPopup.style.top = `${rect.top - 130}px`;
+      noGifPopup.style.display = 'block';
+
+      setTimeout(() => {
+        noGifPopup.style.display = 'none';
+      }, 1200);
+
       moveNoButton();
     }
-    noBtn.addEventListener('click', dodge);
-    noBtn.addEventListener('touchstart', dodge, { passive: false });
 
-    // "Yes" button opens time picker and removes the "No" button from screen
+    noBtn.addEventListener('click', handleNoClick);
+    noBtn.addEventListener('touchstart', handleNoClick, { passive: false });
+
+    // Handle "Yes" click: play yes.gif, then advance to Step 2
     yesBtn.addEventListener('click', () => {
       clearInterval(moveInterval);
       noBtn.style.display = 'none';
-      step1.style.display = 'none';
-      step2.style.display = 'block';
+      yesBtn.style.display = 'none';
+      
+      // Play yes.gif briefly before showing time picker
+      yesGifBox.style.display = 'block';
+
+      setTimeout(() => {
+        step1.style.display = 'none';
+        step2.style.display = 'block';
+      }, 1500);
     });
 
     // Save to Firebase
